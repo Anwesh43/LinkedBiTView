@@ -32,13 +32,20 @@ fun Float.mirrorValue(a : Int, b : Int) : Float {
     return (1 - k) * a.inverse() + k * b.inverse()
 }
 fun Float.updateValue(dir : Float, a : Int, b : Int) : Float = mirrorValue(a, b) * dir * scGap
+fun Int.sf() : Float = 1f - 2 * this
+fun Int.rem2() : Int = this % 2
+fun Int.sfrem2() : Float = this.rem2().sf()
 
-fun Canvas.drawT(size : Float, scale : Float, paint : Paint) {
-    drawLine(0f, -size, 0f, size, paint)
-    val updatedSize : Float = (size / 2) * scale
+fun Canvas.drawT(i : Int, size : Float, scale : Float, paint : Paint) {
+    val xGap : Float = (2 * size) / (lines - 1)
     save()
-    translate(0f, -size)
+    translate(-size + xGap * i, 0f)
+    drawLine(0f, -size, 0f, size, paint)
+    val updatedSize : Float = (xGap / 2) * scale.divideScale(i, lines)
+    save()
+    translate(0f, -size * i.sfrem2())
     drawLine(0f, -updatedSize, 0f, updatedSize, paint)
+    restore()
     restore()
 }
 
@@ -58,7 +65,7 @@ fun Canvas.drawBTNode(i : Int, scale : Float, paint : Paint) {
     for (j in 0..(lines - 1)) {
         save()
         translate(-size + j * 2 * size, 0f)
-        drawT(size, sc1.divideScale(j, lines), paint)
+        drawT(j, size, sc1, paint)
         restore()
     }
     restore()
