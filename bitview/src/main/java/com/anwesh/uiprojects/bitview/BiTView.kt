@@ -8,13 +8,12 @@ import android.app.Activity
 import android.view.View
 import android.view.MotionEvent
 import android.graphics.Paint
-import android.graphics.RectF
 import android.graphics.Canvas
 import android.graphics.Color
 import android.content.Context
 
 val nodes : Int = 5
-val lines : Int = 2
+val lines : Int = 4
 val scGap : Float = 0.05f
 val scDiv : Double = 0.51
 val strokeFactor : Int = 90
@@ -22,6 +21,9 @@ val sizeFactor : Float = 2.9f
 val foreColor : Int = Color.parseColor("#673AB7")
 val backColor : Int = Color.parseColor("#BDBDBD")
 val angleDeg : Float = 90f
+val tSizeFactor : Float = 2.3f
+val delay : Long = 20
+val rotScaleFactor : Int = 2
 
 fun Int.inverse() : Float = 1f / this
 fun Float.maxScale(i : Int, n : Int) : Float = Math.max(0f, this - i * n.inverse())
@@ -41,10 +43,10 @@ fun Canvas.drawT(i : Int, size : Float, scale : Float, paint : Paint) {
     save()
     translate(-size + xGap * i, 0f)
     drawLine(0f, -size, 0f, size, paint)
-    val updatedSize : Float = (xGap / 2) * scale.divideScale(i, lines)
+    val updatedSize : Float = (xGap / tSizeFactor) * scale.divideScale(i, lines)
     save()
     translate(0f, -size * i.sfrem2())
-    drawLine(0f, -updatedSize, 0f, updatedSize, paint)
+    drawLine( -updatedSize, 0f, updatedSize, 0f, paint)
     restore()
     restore()
 }
@@ -60,13 +62,10 @@ fun Canvas.drawBTNode(i : Int, scale : Float, paint : Paint) {
     paint.strokeWidth = Math.min(w, h) / strokeFactor
     paint.strokeCap = Paint.Cap.ROUND
     save()
-    translate(gap * (i + 1), h / 2)
+    translate(w /2, gap * (i + 1))
     rotate(angleDeg * sc2)
     for (j in 0..(lines - 1)) {
-        save()
-        translate(-size + j * 2 * size, 0f)
         drawT(j, size, sc1, paint)
-        restore()
     }
     restore()
 }
@@ -92,9 +91,9 @@ class BiTView(ctx : Context) : View(ctx) {
     data class State(var scale : Float = 0f, var dir : Float = 0f, var prevScale : Float = 0f) {
 
         fun update(cb : (Float) -> Unit) {
-            scale += scale.updateValue(dir, lines, 1)
+            scale += scale.updateValue(dir, lines, rotScaleFactor)
             if (Math.abs(scale - prevScale) > 1) {
-                scale += prevScale + dir
+                scale = prevScale + dir
                 dir = 0f
                 prevScale = scale
                 cb(prevScale)
@@ -115,7 +114,7 @@ class BiTView(ctx : Context) : View(ctx) {
             if (animated) {
                 cb()
                 try {
-                    Thread.sleep(50)
+                    Thread.sleep(delay)
                     view.invalidate()
                 } catch(ex : Exception) {
 
