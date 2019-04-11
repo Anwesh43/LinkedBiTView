@@ -4,6 +4,7 @@ package com.anwesh.uiprojects.bitview
  * Created by anweshmishra on 11/04/19.
  */
 
+import android.app.Activity
 import android.view.View
 import android.view.MotionEvent
 import android.graphics.Paint
@@ -216,6 +217,15 @@ class BiTView(ctx : Context) : View(ctx) {
             btShape.startUpdating {
                 animator.start()
             }
+        }
+    }
+
+    companion object {
+
+        fun create(activity : Activity) : BiTView {
+            val view : BiTView = BiTView(activity)
+            activity.setContentView(view)
+            return view
         }
     }
 }
