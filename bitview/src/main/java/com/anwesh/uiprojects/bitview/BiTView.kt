@@ -195,4 +195,26 @@ class BiTView(ctx : Context) : View(ctx) {
             curr.startUpdating(cb)
         }
     }
+
+    data class Renderer(var view : BiTView) {
+
+        private val animator : Animator = Animator(view)
+        private val btShape : BiTShape = BiTShape(0)
+
+        fun render(canvas : Canvas, paint : Paint) {
+            canvas.drawColor(backColor)
+            btShape.draw(canvas, paint)
+            animator.animate {
+                btShape.update {i, scl ->
+                    animator.stop()
+                }
+            }
+        }
+
+        fun handleTap() {
+            btShape.startUpdating {
+                animator.start()
+            }
+        }
+    }
 }
